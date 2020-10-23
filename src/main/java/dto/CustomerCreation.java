@@ -9,10 +9,15 @@ public class CustomerCreation {
         return lastname;
     }
 
-    public final String firstname, lastname;
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-    public CustomerCreation(String firstname, String lastname) {
+    public final String firstname, lastname, phoneNumber;
+
+    public CustomerCreation(String firstname, String lastname, String phoneNumber) {
         this.firstname = firstname;
         this.lastname = lastname;
+        this.phoneNumber = phoneNumber;
     }
 }

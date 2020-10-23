@@ -10,31 +10,48 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import servicelayer.customer.CustomerServiceImpl;
 
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Testcontainers
 @Tag("integration")
 class CreateCustomerTest {
     private CustomerStorage customerStorage;
 
+    private static final int PORT = 3306;
+    private static final String PASSWORD = "testuser1234";
+
+    @Container
+    public static MySQLContainer mysql = (MySQLContainer) new MySQLContainer(DockerImageName.parse("mysql"))
+            .withPassword(PASSWORD)
+            .withExposedPorts(PORT);
+
     @BeforeAll
-    public void Setup() throws SQLException {
-        var url = "jdbc:mysql://localhost:3307/";
-        var db = "DemoApplicationTest";
-
-        Flyway flyway = new Flyway(new FluentConfiguration()
-                .defaultSchema(db)
-                .createSchemas(true)
-                .schemas(db)
-                .target("2")
-                .dataSource(url, "root", "testuser123"));
-
+    public void setup() throws SQLException {
+        System.err.println("mysql created: " + mysql.isCreated());
+        System.err.println("mysql running: " + mysql.isRunning());
+        System.err.println("mysql host: " + mysql.getHost());
+        String url = "jdbc:mysql://"+mysql.getHost()+":"+mysql.getFirstMappedPort()+"/";
+        String db = "DemoApplicationTest";
+        Flyway flyway = new Flyway(
+                new FluentConfiguration()
+                        .schemas(db)
+                        .defaultSchema(db)
+                        .createSchemas(true)
+                        .target("4")
+                        .dataSource(url, "root", PASSWORD)
+        );
         flyway.migrate();
 
-        customerStorage = new CustomerStorageImpl(url+db, "root", "testuser123");
+        customerStorage = new CustomerStorageImpl(url + db,"root", PASSWORD);
 
         var numCustomers = customerStorage.getCustomers().size();
         if (numCustomers < 100) {
@@ -45,7 +62,7 @@ class CreateCustomerTest {
     private void addFakeCustomers(int numCustomers) throws SQLException {
         Faker faker = new Faker();
         for (int i = 0; i < numCustomers; i++) {
-            CustomerCreation c = new CustomerCreation(faker.name().firstName(), faker.name().lastName());
+            CustomerCreation c = new CustomerCreation(faker.name().firstName(), faker.name().lastName(), "11122233");
             customerStorage.createCustomer(c);
         }
 
@@ -55,7 +72,7 @@ class CreateCustomerTest {
     public void mustSaveCustomerInDatabaseWhenCallingCreateCustomer() throws SQLException {
         // Arrange
         // Act
-        customerStorage.createCustomer(new CustomerCreation("John","Carlssonn"));
+        customerStorage.createCustomer(new CustomerCreation("John","Carlssonn", "12345678"));
 
         // Assert
         var customers = customerStorage.getCustomers();
@@ -69,8 +86,8 @@ class CreateCustomerTest {
     public void mustReturnLatestId() throws SQLException {
         // Arrange
         // Act
-        var id1 = customerStorage.createCustomer(new CustomerCreation("a", "b"));
-        var id2 = customerStorage.createCustomer(new CustomerCreation("c", "d"));
+        var id1 = customerStorage.createCustomer(new CustomerCreation("a", "b", "12345678"));
+        var id2 = customerStorage.createCustomer(new CustomerCreation("c", "d", "87654321"));
 
         // Assert
         assertEquals(1, id2 - id1);
