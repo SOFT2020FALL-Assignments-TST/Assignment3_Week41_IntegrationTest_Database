@@ -5,6 +5,7 @@ import dto.CustomerCreation;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CustomerStorageImpl implements CustomerStorage {
@@ -33,27 +34,35 @@ public class CustomerStorageImpl implements CustomerStorage {
                     var id = resultSet.getInt("ID");
                     var firstname = resultSet.getString("firstname");
                     var lastname = resultSet.getString("lastname");
+                    var birthDate = resultSet.getDate("birthdate");
                     var phoneNumber = resultSet.getString("phonenumber");
-                    return new Customer(id, firstname, lastname, phoneNumber);
+                    return new Customer(id, firstname, lastname, birthDate, phoneNumber);
                 }
                 return null;
             }
         }
     }
 
-    public List<Customer> getCustomers() throws SQLException {
-        try (var con = getConnection();
-             var stmt = con.createStatement()) {
+    @Override
+    public List<Customer> getCustomersByFirstName(String firstName) throws SQLException {
+        var sql = "select ID, firstname, lastname, birthdate, phonenumber from Customers where firstname = ?";
+        try (
+                var con = getConnection();
+                var stmt = con.prepareStatement(sql)
+        ) {
+            stmt.setString(1, firstName);
             var results = new ArrayList<Customer>();
 
-            ResultSet resultSet = stmt.executeQuery("select ID, firstname, lastname, phonenumber from Customers");
+            ResultSet resultSet = stmt.executeQuery();
+            //ResultSet resultSet = stmt.executeQuery("select ID, firstname, lastname, birthdate, phonenumber from Customers ");
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("ID");
                 String firstname = resultSet.getString("firstname");
                 String lastname = resultSet.getString("lastname");
+                Date birthDate = resultSet.getDate("birthdate");
                 String phoneNumber = resultSet.getString("phonenumber");
-                Customer c = new Customer(id, firstname, lastname, phoneNumber);
+                Customer c = new Customer(id, firstname, lastname, birthDate, phoneNumber);
                 results.add(c);
             }
 
@@ -61,6 +70,29 @@ public class CustomerStorageImpl implements CustomerStorage {
         }
     }
 
+    @Override
+    public List<Customer> getCustomers() throws SQLException {
+        try (var con = getConnection();
+             var stmt = con.createStatement()) {
+            var results = new ArrayList<Customer>();
+
+            ResultSet resultSet = stmt.executeQuery("select ID, firstname, lastname, birthdate, phonenumber from Customers");
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("ID");
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                Date birthDate = resultSet.getDate("birthdate");
+                String phoneNumber = resultSet.getString("phonenumber");
+                Customer c = new Customer(id, firstname, lastname, birthDate, phoneNumber);
+                results.add(c);
+            }
+
+            return results;
+        }
+    }
+
+    @Override
     public int createCustomer(CustomerCreation customerToCreate) throws SQLException {
         var sql = "insert into Customers(firstname, lastname, phonenumber) values (?, ?, ?)";
         try (var con = getConnection();

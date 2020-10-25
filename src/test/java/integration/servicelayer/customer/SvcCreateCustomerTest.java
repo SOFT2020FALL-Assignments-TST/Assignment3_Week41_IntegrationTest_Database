@@ -12,7 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import servicelayer.customer.CustomerService;
-import servicelayer.customer.CustomerServiceException;
+import exceptions.CustomerServiceException;
 import servicelayer.customer.CustomerServiceImpl;
 
 import java.sql.SQLException;
@@ -57,6 +57,22 @@ class SvcCreateCustomerTest {
     }
 
     @Test
+    public void mustGetCustomersFromDatabaseWhenCallingGetCustomerByFirstName() throws CustomerServiceException, SQLException {
+        // Arrange
+        var firstName = "John";
+        var lastName = "Johnson";
+        var bday = new Date(1239821l);
+        var phoneNumber = "12345678";
+        int id = svc.createCustomer(firstName, lastName, bday, phoneNumber);
+
+        // Act
+        var createdCustomer = svc.getCustomersByFirstName(firstName);
+
+        // Assert
+        assertEquals(3, createdCustomer.size());
+    }
+
+    @Test
     public void mustSaveCustomerToDatabaseWhenCallingCreateCustomer() throws CustomerServiceException, SQLException {
         // Arrange
         var firstName = "John";
@@ -67,6 +83,24 @@ class SvcCreateCustomerTest {
 
         // Act
         var createdCustomer = storage.getCustomerWithId(id);
+
+        // Assert
+        assertEquals(firstName, createdCustomer.getFirstname());
+        assertEquals(lastName, createdCustomer.getLastname());
+        assertEquals(phoneNumber, createdCustomer.getPhoneNumber());
+    }
+
+    @Test
+    public void mustGetCustomerFromDatabaseWhenCallingGetCustomerById() throws CustomerServiceException, SQLException {
+        // Arrange
+        var firstName = "John";
+        var lastName = "Johnson";
+        var bday = new Date(1239821l);
+        var phoneNumber = "12345678";
+        int id = svc.createCustomer(firstName, lastName, bday, phoneNumber);
+
+        // Act
+        var createdCustomer = svc.getCustomerById(id);
 
         // Assert
         assertEquals(firstName, createdCustomer.getFirstname());

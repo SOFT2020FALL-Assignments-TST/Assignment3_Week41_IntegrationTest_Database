@@ -1,4 +1,4 @@
-package servicelayer.customer;
+package exceptions;
 
 public class CustomerServiceException extends Exception {
     public CustomerServiceException(String e) {

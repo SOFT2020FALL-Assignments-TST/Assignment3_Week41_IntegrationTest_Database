@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import servicelayer.customer.CustomerService;
-import servicelayer.customer.CustomerServiceException;
+import exceptions.CustomerServiceException;
 import servicelayer.customer.CustomerServiceImpl;
 
 import java.sql.SQLException;
@@ -34,11 +34,12 @@ public class CreateCustomerTest {
     @Test
     public void mustCallStorageWhenCreatingCustomer() throws CustomerServiceException, SQLException {
         // Arrange
-        // Act
         var firstName = "a";
         var lastName = "b";
         var birthdate = new Date(123456789l);
         var phoneNumber = "12345678";
+
+        // Act
         customerService.createCustomer(firstName, lastName, birthdate, phoneNumber);
 
         // Assert
