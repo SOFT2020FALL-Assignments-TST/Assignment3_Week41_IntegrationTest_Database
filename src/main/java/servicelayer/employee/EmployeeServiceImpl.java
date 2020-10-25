@@ -1,11 +1,8 @@
 package servicelayer.employee;
 
-import datalayer.customer.CustomerStorage;
 import datalayer.employee.EmployeeStorage;
-import dto.CustomerCreation;
 import dto.Employee;
 import dto.EmployeeCreation;
-import exceptions.CustomerServiceException;
 import exceptions.EmployeeServiceException;
 
 import java.sql.SQLException;

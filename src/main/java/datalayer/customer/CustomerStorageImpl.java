@@ -54,7 +54,6 @@ public class CustomerStorageImpl implements CustomerStorage {
             var results = new ArrayList<Customer>();
 
             ResultSet resultSet = stmt.executeQuery();
-            //ResultSet resultSet = stmt.executeQuery("select ID, firstname, lastname, birthdate, phonenumber from Customers ");
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("ID");

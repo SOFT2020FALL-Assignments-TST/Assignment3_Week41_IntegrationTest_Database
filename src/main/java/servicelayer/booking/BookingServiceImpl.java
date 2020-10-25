@@ -14,16 +14,18 @@ import java.sql.Time;
 import java.util.Collection;
 import java.util.Date;
 
-public class BookingServiceImpl implements BookingService, SmsService {
+public class BookingServiceImpl implements BookingService {
 
     private BookingStorage bookingStorage;
     private EmployeeService employeeService;
     private CustomerService customerService;
+    private SmsService smsService;
 
-    public BookingServiceImpl(BookingStorage bookingStorage, EmployeeService employeeService, CustomerService customerService) {
+    public BookingServiceImpl(BookingStorage bookingStorage, EmployeeService employeeService, CustomerService customerService, SmsService smsService) {
         this.bookingStorage = bookingStorage;
         this.employeeService = employeeService;
         this.customerService = customerService;
+        this.smsService = smsService;
     }
 
     @Override
@@ -31,7 +33,9 @@ public class BookingServiceImpl implements BookingService, SmsService {
         Employee e = employeeService.getEmployeeById(employeeId);
         Customer c = customerService.getCustomerById(customerId);
         try {
-            return bookingStorage.createBooking(new BookingCreation(c, e, date, start, end));
+            int newBookingId = bookingStorage.createBooking(new BookingCreation(c, e, date, start, end));
+            smsService.sendSms(new SmsMessage(c.getPhoneNumber(),"Booking created succesfully"));
+            return newBookingId;
         } catch (SQLException throwables) {
             throw new BookingServiceException(throwables.getMessage());
         }
@@ -53,10 +57,5 @@ public class BookingServiceImpl implements BookingService, SmsService {
         } catch (SQLException throwables) {
             throw new BookingServiceException(throwables.getMessage());
         }
-    }
-
-    @Override
-    public boolean sendSms(SmsMessage message) {
-        return false;
     }
 }

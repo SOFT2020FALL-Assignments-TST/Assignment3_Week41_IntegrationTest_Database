@@ -1,12 +1,10 @@
 package datalayer.employee;
 
-import dto.Customer;
 import dto.Employee;
 import dto.EmployeeCreation;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class EmployeeStorageImpl implements EmployeeStorage {
     private String connectionString;
@@ -57,7 +55,6 @@ public class EmployeeStorageImpl implements EmployeeStorage {
                 Date birthDate = resultSet.getDate("birthdate");
                 Employee e = new Employee(id, firstname, lastname, birthDate);
                 return e;
-                //results.add(e);
             }
 
             return null;

@@ -14,7 +14,6 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import servicelayer.customer.CustomerServiceImpl;
 
 import java.sql.SQLException;
 
